@@ -81,7 +81,14 @@ Class MainWindow
     End Sub
 End Class
 
+Public Class RESTBase
+    Public tokenIsValid As Boolean
+    Public tokenExists As Boolean
+
+End Class
 Public Class Trip
+    Inherits RESTBase
+
     Public tripID As Int32
     Public clientLastName As String
     Public clientFirstName As String
@@ -89,6 +96,7 @@ Public Class Trip
 End Class
 
 Public Class Client
+    Inherits RESTBase
     Public clientID As Int32
     Public firstName As String
     Public lastName As String
