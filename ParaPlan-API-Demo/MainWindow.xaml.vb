@@ -31,7 +31,7 @@ Class MainWindow
                 Dim trips As List(Of Trip) = JsonConvert.DeserializeObject(Of List(Of Trip))(s)
 
                 For Each t In trips
-                    listResults.Items.Add(t.tripID)
+                    listResults.Items.Add($"{t.tripID} {t.clientFirstName} {t.clientLastName}")
 
                 Next
 
@@ -83,7 +83,8 @@ End Class
 
 Public Class Trip
     Public tripID As Int32
-    Public client As Client
+    Public clientLastName As String
+    Public clientFirstName As String
 
 End Class
 
