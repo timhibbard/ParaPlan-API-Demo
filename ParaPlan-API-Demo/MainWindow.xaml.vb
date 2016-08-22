@@ -15,7 +15,7 @@ Class MainWindow
     Function SearchClientByBrokerID(ByVal searchText As String) As List(Of Client)
         ValidateToken()
 
-        Dim request As WebRequest = WebRequest.Create(api + $"Client/Search/Broker={searchText}&Token={token}&Device=APIDEMO")
+        Dim request As WebRequest = WebRequest.Create(api + $"ClientService/Client/Search/Broker={searchText}?Token={token}&Device=APIDEMO")
         request.ContentType = "application/json; charset=utf-8"
         listResults.Items.Add(request.RequestUri.ToString())
 
@@ -118,7 +118,10 @@ Class MainWindow
     End Sub
 
     Private Sub listResults_MouseDoubleClick(sender As Object, e As MouseButtonEventArgs)
-        Clipboard.SetText(listResults.SelectedItem.ToString())
+        Dim text As String = listResults.SelectedItem.ToString()
+        Dim fileLocation As String = System.Environment.CurrentDirectory + "//" + Guid.NewGuid().ToString() + ".txt"
+        File.WriteAllText(fileLocation, text)
+        Process.Start(fileLocation)
     End Sub
 End Class
 
