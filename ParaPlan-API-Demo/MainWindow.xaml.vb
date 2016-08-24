@@ -131,20 +131,24 @@ Class MainWindow
         Dim request As WebRequest = WebRequest.Create(api + $"TripService/Trips?Token={token}&Device=APIDEMO&Driver=31&Date=2016-08-15")
         request.ContentType = "application/json; charset=utf-8"
         listResults.Items.Add(request.RequestUri.ToString())
-
+        Dim trips As List(Of Trip) = New List(Of Trip)
         Try
             Using response As HttpWebResponse = request.GetResponse()
                 Dim reader As StreamReader = New StreamReader(response.GetResponseStream)
                 Dim s As String = reader.ReadToEnd()
                 listResults.Items.Add(s)
-                Dim trips As List(Of Trip) = JsonConvert.DeserializeObject(Of List(Of Trip))(s)
-
+                trips = JsonConvert.DeserializeObject(Of List(Of Trip))(s)
+                If trips.First.tokenExists = False Or trips.First.tokenIsValid = False Then
+                    apiFailuresCounter = apiFailuresCounter + 1
+                    If apiFailuresCounter > 5 Then
+                        Throw New Exception("Too many API failures")
+                    End If
+                    token = GetToken()
+                    Return GetTrips()
+                End If
                 For Each t In trips
                     listResults.Items.Add($"{t.tripID} {t.clientFirstName} {t.clientLastName}")
-
                 Next
-
-
 
 
             End Using
@@ -153,9 +157,7 @@ Class MainWindow
             listResults.Items.Add(ex.ToString())
         End Try
 
-
-        Return New List(Of Trip)
-
+        Return trips
     End Function
 
     Function GetToken() As String
