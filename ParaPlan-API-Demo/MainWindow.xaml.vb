@@ -11,6 +11,7 @@ Class MainWindow
     Public token As String
     Public kimPW As String = "6637AA99E18177E7663960496752E46A3CCE8012FB8E4D599DF0890EE3C1A299C768CE89FB2C300CB680A1B22FA98E0AB126049EE703AB92B0D8EBEBB99F3CFF"
     Public kimEmail As String = "kim.marsh@st-francis.org"
+    Public apiFailuresCounter As Int32 = 0
 
     Function SearchClientByBrokerID(ByVal searchText As String) As List(Of Client)
         ValidateToken()
@@ -27,7 +28,7 @@ Class MainWindow
                 Dim clients As SimpleList(Of Client) = JsonConvert.DeserializeObject(Of SimpleList(Of Client))(s)
 
                 For Each c In clients.list
-                    listResults.Items.Add($"{c.clientID} {c.firstName} {c.lastName}")
+                    listResults.Items.Add($"{c.id} {c.name} {c.notes}")
 
                 Next
 
@@ -41,6 +42,71 @@ Class MainWindow
         End Try
 
     End Function
+
+    Function SearchClientByCustomID(ByVal searchText As String) As List(Of Client)
+        ValidateToken()
+
+        Dim request As WebRequest = WebRequest.Create(api + $"ClientService/Client/Search/CustomID={searchText}?Token={token}&Device=APIDEMO")
+        request.ContentType = "application/json; charset=utf-8"
+        listResults.Items.Add(request.RequestUri.ToString())
+
+        Try
+            Using response As HttpWebResponse = request.GetResponse()
+                Dim reader As StreamReader = New StreamReader(response.GetResponseStream)
+                Dim s As String = reader.ReadToEnd()
+                listResults.Items.Add(s)
+                Dim clients As SimpleList(Of Client) = JsonConvert.DeserializeObject(Of SimpleList(Of Client))(s)
+
+                For Each c In clients.list
+                    listResults.Items.Add($"{c.id} {c.name} {c.notes}")
+
+                Next
+
+
+
+
+            End Using
+
+        Catch ex As Exception
+            listResults.Items.Add(ex.ToString())
+        End Try
+
+    End Function
+
+    Function GetClientByID(ByVal Id As String) As Client
+        ValidateToken()
+
+        Dim request As WebRequest = WebRequest.Create(api + $"ClientService/Client/{Id}?Token={token}&Device=APIDEMO")
+        request.ContentType = "application/json; charset=utf-8"
+        listResults.Items.Add(request.RequestUri.ToString())
+
+        Try
+            Using response As HttpWebResponse = request.GetResponse()
+                Dim reader As StreamReader = New StreamReader(response.GetResponseStream)
+                Dim s As String = reader.ReadToEnd()
+                listResults.Items.Add(s)
+                Dim c As Client = JsonConvert.DeserializeObject(Of Client)(s)
+                If c.tokenExists = False Or c.tokenIsValid = False Then
+                    apiFailuresCounter = apiFailuresCounter + 1
+                    If apiFailuresCounter > 5 Then
+                        Throw New Exception("Too many API failures")
+                    End If
+                    token = GetToken()
+                    Return GetClientByID(Id)
+                End If
+                listResults.Items.Add($"{c.id} {c.name} {c.notes}")
+
+                Return c
+
+
+            End Using
+
+        Catch ex As Exception
+            listResults.Items.Add(ex.ToString())
+        End Try
+
+    End Function
+
 
     Sub ValidateToken()
         If String.IsNullOrWhiteSpace(token) Then
@@ -114,7 +180,7 @@ Class MainWindow
     End Sub
 
     Private Sub SearchByBroker_Click(sender As Object, e As RoutedEventArgs)
-        SearchClientByBrokerID("53378")
+        SearchClientByBrokerID(brokerSearchText.Text)
     End Sub
 
     Private Sub listResults_MouseDoubleClick(sender As Object, e As MouseButtonEventArgs)
@@ -122,6 +188,15 @@ Class MainWindow
         Dim fileLocation As String = System.Environment.CurrentDirectory + "//" + Guid.NewGuid().ToString() + ".txt"
         File.WriteAllText(fileLocation, text)
         Process.Start(fileLocation)
+    End Sub
+
+    Private Sub SearchByCustom_Click(sender As Object, e As RoutedEventArgs)
+        SearchClientByCustomID(customSearchText.Text)
+    End Sub
+
+
+    Private Sub GetByID_Click(sender As Object, e As RoutedEventArgs)
+        GetClientByID(getByIDText.Text)
     End Sub
 End Class
 
@@ -142,9 +217,9 @@ End Class
 
 Public Class Client
     Inherits RESTBase
-    Public clientID As Int32
-    Public firstName As String
-    Public lastName As String
+    Public id As Int32
+    Public name As String
+    Public notes As String
 
 End Class
 

@@ -9,7 +9,18 @@
     <DockPanel LastChildFill="True">
         <StackPanel Orientation="Vertical" DockPanel.Dock="Top">
             <Button Content="Get Trips" Click="GetTripsButton_Click"/>
-            <Button Content="Get By Broker ID" Click="SearchByBroker_Click"/>
+            <DockPanel LastChildFill="True">
+                <TextBox Name="brokerSearchText" Width="100"/>
+                <Button Content="Get By Broker ID" Click="SearchByBroker_Click"/>
+            </DockPanel>
+            <DockPanel LastChildFill="True">
+                <TextBox Name="customSearchText" Width="100"/>
+                <Button Content="Get By Custom ID" Click="SearchByCustom_Click"/>
+            </DockPanel>
+            <DockPanel LastChildFill="True">
+                <TextBox Name="getByIDText" Width="100"/>
+                <Button Content="Get By ID" Click="GetByID_Click"/>
+            </DockPanel>
         </StackPanel>
         <ListBox Name="listResults" MouseDoubleClick="listResults_MouseDoubleClick"/>
     </DockPanel>
