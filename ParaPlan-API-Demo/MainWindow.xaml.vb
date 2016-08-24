@@ -13,27 +13,31 @@ Class MainWindow
     Public kimEmail As String = "kim.marsh@st-francis.org"
     Public apiFailuresCounter As Int32 = 0
 
-    Function SearchClientByBrokerID(ByVal searchText As String) As List(Of Client)
+    Function SearchClientByBrokerID(ByVal searchText As String) As SimpleList(Of Client)
         ValidateToken()
 
         Dim request As WebRequest = WebRequest.Create(api + $"ClientService/Client/Search/Broker={searchText}?Token={token}&Device=APIDEMO")
         request.ContentType = "application/json; charset=utf-8"
         listResults.Items.Add(request.RequestUri.ToString())
-
+        Dim clients As SimpleList(Of Client) = New SimpleList(Of Client)
         Try
             Using response As HttpWebResponse = request.GetResponse()
                 Dim reader As StreamReader = New StreamReader(response.GetResponseStream)
                 Dim s As String = reader.ReadToEnd()
                 listResults.Items.Add(s)
-                Dim clients As SimpleList(Of Client) = JsonConvert.DeserializeObject(Of SimpleList(Of Client))(s)
-
+                clients = JsonConvert.DeserializeObject(Of SimpleList(Of Client))(s)
+                If clients.tokenExists = False Or clients.tokenIsValid Then
+                    apiFailuresCounter = apiFailuresCounter + 1
+                    If apiFailuresCounter > 5 Then
+                        Throw New Exception("Too many API failures")
+                    End If
+                    token = GetToken()
+                    Return SearchClientByBrokerID(searchText)
+                End If
                 For Each c In clients.list
                     listResults.Items.Add($"{c.id} {c.name} {c.notes}")
 
                 Next
-
-
-
 
             End Using
 
@@ -41,35 +45,43 @@ Class MainWindow
             listResults.Items.Add(ex.ToString())
         End Try
 
+        Return clients
+
     End Function
 
-    Function SearchClientByCustomID(ByVal searchText As String) As List(Of Client)
+    Function SearchClientByCustomID(ByVal searchText As String) As SimpleList(Of Client)
         ValidateToken()
 
         Dim request As WebRequest = WebRequest.Create(api + $"ClientService/Client/Search/CustomID={searchText}?Token={token}&Device=APIDEMO")
         request.ContentType = "application/json; charset=utf-8"
         listResults.Items.Add(request.RequestUri.ToString())
-
+        Dim clients As SimpleList(Of Client) = New SimpleList(Of Client)
         Try
             Using response As HttpWebResponse = request.GetResponse()
                 Dim reader As StreamReader = New StreamReader(response.GetResponseStream)
                 Dim s As String = reader.ReadToEnd()
                 listResults.Items.Add(s)
-                Dim clients As SimpleList(Of Client) = JsonConvert.DeserializeObject(Of SimpleList(Of Client))(s)
-
+                clients = JsonConvert.DeserializeObject(Of SimpleList(Of Client))(s)
+                If clients.tokenExists = False Or clients.tokenIsValid Then
+                    apiFailuresCounter = apiFailuresCounter + 1
+                    If apiFailuresCounter > 5 Then
+                        Throw New Exception("Too many API failures")
+                    End If
+                    token = GetToken()
+                    Return SearchClientByCustomID(searchText)
+                End If
                 For Each c In clients.list
                     listResults.Items.Add($"{c.id} {c.name} {c.notes}")
 
                 Next
-
-
-
 
             End Using
 
         Catch ex As Exception
             listResults.Items.Add(ex.ToString())
         End Try
+
+        Return clients
 
     End Function
 
@@ -79,13 +91,13 @@ Class MainWindow
         Dim request As WebRequest = WebRequest.Create(api + $"ClientService/Client/{Id}?Token={token}&Device=APIDEMO")
         request.ContentType = "application/json; charset=utf-8"
         listResults.Items.Add(request.RequestUri.ToString())
-
+        Dim c As Client = New Client
         Try
             Using response As HttpWebResponse = request.GetResponse()
                 Dim reader As StreamReader = New StreamReader(response.GetResponseStream)
                 Dim s As String = reader.ReadToEnd()
                 listResults.Items.Add(s)
-                Dim c As Client = JsonConvert.DeserializeObject(Of Client)(s)
+                c = JsonConvert.DeserializeObject(Of Client)(s)
                 If c.tokenExists = False Or c.tokenIsValid = False Then
                     apiFailuresCounter = apiFailuresCounter + 1
                     If apiFailuresCounter > 5 Then
@@ -96,15 +108,13 @@ Class MainWindow
                 End If
                 listResults.Items.Add($"{c.id} {c.name} {c.notes}")
 
-                Return c
-
-
             End Using
 
         Catch ex As Exception
             listResults.Items.Add(ex.ToString())
         End Try
 
+        Return c
     End Function
 
 
