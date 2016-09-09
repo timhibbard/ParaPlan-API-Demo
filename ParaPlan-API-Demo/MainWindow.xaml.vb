@@ -26,7 +26,7 @@ Class MainWindow
                 Dim s As String = reader.ReadToEnd()
                 listResults.Items.Add(s)
                 clients = JsonConvert.DeserializeObject(Of SimpleList(Of Client))(s)
-                If clients.tokenExists = False Or clients.tokenIsValid Then
+                If clients.tokenExists = False Or clients.tokenIsValid = False Then
                     apiFailuresCounter = apiFailuresCounter + 1
                     If apiFailuresCounter > 5 Then
                         Throw New Exception("Too many API failures")
@@ -62,7 +62,7 @@ Class MainWindow
                 Dim s As String = reader.ReadToEnd()
                 listResults.Items.Add(s)
                 clients = JsonConvert.DeserializeObject(Of SimpleList(Of Client))(s)
-                If clients.tokenExists = False Or clients.tokenIsValid Then
+                If clients.tokenExists = False Or clients.tokenIsValid = False Then
                     apiFailuresCounter = apiFailuresCounter + 1
                     If apiFailuresCounter > 5 Then
                         Throw New Exception("Too many API failures")
@@ -164,7 +164,7 @@ Class MainWindow
         'https://aws.engraph.com/ParaPlanREST/UserService/Login?UserName=kim.marsh@st-francis.org&Password=6637AA99E18177E7663960496752E46A3CCE8012FB8E4D599DF0890EE3C1A299C768CE89FB2C300CB680A1B22FA98E0AB126049EE703AB92B0D8EBEBB99F3CFF&Device=APIDEMO&Version=0.1&DeviceToken=
         Dim request As WebRequest = WebRequest.Create($"https://aws.engraph.com/ParaPlanREST/UserService/Login?UserName={kimEmail}&Password={kimPW}&Device=APIDEMO&Version=0.1&DeviceToken=")
         request.ContentType = "application/json; charset=utf-8"
-        Dim rv As String
+        Dim rv As String = ""
         Try
             Using response As HttpWebResponse = request.GetResponse()
                 Dim reader As StreamReader = New StreamReader(response.GetResponseStream)

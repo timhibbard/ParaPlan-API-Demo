@@ -10,12 +10,12 @@
         <StackPanel Orientation="Vertical" DockPanel.Dock="Top">
             <Button Content="Get Trips" Click="GetTripsButton_Click"/>
             <DockPanel LastChildFill="True">
-                <TextBox Name="brokerSearchText" Width="100"/>
-                <Button Content="Get By Broker ID" Click="SearchByBroker_Click"/>
+                <TextBox Name="brokerSearchText" Width="100" Text="30040"/>
+                <Button Content="Get By eKidz (Broker) ID" Click="SearchByBroker_Click"/>
             </DockPanel>
             <DockPanel LastChildFill="True">
-                <TextBox Name="customSearchText" Width="100"/>
-                <Button Content="Get By Custom ID" Click="SearchByCustom_Click"/>
+                <TextBox Name="customSearchText" Width="100" Text="0003216452"/>
+                <Button Content="Get By KEACSES (Custom) ID" Click="SearchByCustom_Click"/>
             </DockPanel>
             <DockPanel LastChildFill="True">
                 <TextBox Name="getByIDText" Width="100"/>
