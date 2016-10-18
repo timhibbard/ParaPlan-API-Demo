@@ -124,20 +124,22 @@ Class MainWindow
         End If
     End Sub
 
-    Function GetTrips() As List(Of Trip)
+    Function GetTrips() As List(Of TripWrapper)
 
         ValidateToken()
 
-        Dim request As WebRequest = WebRequest.Create(api + $"TripService/Trips?Token={token}&Device=APIDEMO&Driver=31&Date=2016-08-15")
+        '/EkidzTrips?Token={token}&Device={device}&DateStart={dateStart}&DateEnd={dateEnd}&HideCancelled={hideCancelled}&hideNoShow={hideNoShow}&Programs={programs}//
+        'Dim request As WebRequest = WebRequest.Create(api + $"TripService/Trips?Token={token}&Device=APIDEMO&Driver=31&Date=2016-08-15")
+        Dim request As WebRequest = WebRequest.Create(api + $"TripService/EkidzTrips?Token={token}&Device=APIDEMO&DateStart=2016-08-15&DateEnd=2016-08-18&HideCancelled=0&HideNoShow=0&Programs=14&ClientType=All")
         request.ContentType = "application/json; charset=utf-8"
         listResults.Items.Add(request.RequestUri.ToString())
-        Dim trips As List(Of Trip) = New List(Of Trip)
+        Dim trips As List(Of TripWrapper) = New List(Of TripWrapper)
         Try
             Using response As HttpWebResponse = request.GetResponse()
                 Dim reader As StreamReader = New StreamReader(response.GetResponseStream)
                 Dim s As String = reader.ReadToEnd()
                 listResults.Items.Add(s)
-                trips = JsonConvert.DeserializeObject(Of List(Of Trip))(s)
+                trips = JsonConvert.DeserializeObject(Of List(Of TripWrapper))(s)
                 If trips.First.tokenExists = False Or trips.First.tokenIsValid = False Then
                     apiFailuresCounter = apiFailuresCounter + 1
                     If apiFailuresCounter > 5 Then
@@ -147,7 +149,7 @@ Class MainWindow
                     Return GetTrips()
                 End If
                 For Each t In trips
-                    listResults.Items.Add($"{t.tripID} {t.clientFirstName} {t.clientLastName}")
+                    listResults.Items.Add($"{t.Trip.Client.Contact.bestPhoneNumber}")
                 Next
 
 
@@ -162,7 +164,9 @@ Class MainWindow
 
     Function GetToken() As String
         'https://aws.engraph.com/ParaPlanREST/UserService/Login?UserName=kim.marsh@st-francis.org&Password=6637AA99E18177E7663960496752E46A3CCE8012FB8E4D599DF0890EE3C1A299C768CE89FB2C300CB680A1B22FA98E0AB126049EE703AB92B0D8EBEBB99F3CFF&Device=APIDEMO&Version=0.1&DeviceToken=
-        Dim request As WebRequest = WebRequest.Create($"https://aws.engraph.com/ParaPlanREST/UserService/Login?UserName={kimEmail}&Password={kimPW}&Device=APIDEMO&Version=0.1&DeviceToken=")
+        Dim urlString = $"https://aws.engraph.com/ParaPlanREST/UserService/Login?UserName={kimEmail}&Password={kimPW}&Device=APIDEMO&Version=0.1&DeviceToken="
+        listResults.Items.Add(urlString)
+        Dim request As WebRequest = WebRequest.Create(urlString)
         request.ContentType = "application/json; charset=utf-8"
         Dim rv As String = ""
         Try
@@ -218,7 +222,7 @@ Public Class RESTBase
     Public errorMessage As String
     Public success As Boolean
 End Class
-Public Class Trip
+Public Class [Stop]
     Inherits RESTBase
 
     Public tripID As Int32
@@ -247,4 +251,32 @@ Public Class User
     Public key As String
 
 End Class
+
+Public Class TripWrapper
+    Inherits RESTBase
+    Public Trip As Trip
+
+End Class
+
+Public Class Trip
+    Public appointmentType As String
+    Public Client As TripClient
+    Public tripId As String
+
+End Class
+
+Public Class TripClient
+    Public birthDate As Date
+    Public Contact As ContactInformation
+
+End Class
+
+Public Class ContactInformation
+    Public bestPhoneNumber As String
+    Public cellPhone As String
+    Public homePhone As String
+    Public otherPhone As String
+
+End Class
+
 
