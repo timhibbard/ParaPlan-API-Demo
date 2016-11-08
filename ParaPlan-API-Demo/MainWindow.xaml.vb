@@ -149,7 +149,7 @@ Class MainWindow
                     Return GetTrips()
                 End If
                 For Each t In trips
-                    listResults.Items.Add($"{t.Trip.Client.Contact.bestPhoneNumber}")
+                    listResults.Items.Add($"{t.Trip.Client.Contact.bestPhoneNumber} - {t.Trip.tripDate}")
                 Next
 
 
@@ -262,6 +262,8 @@ Public Class Trip
     Public appointmentType As String
     Public Client As TripClient
     Public tripId As String
+    Public tripDate As DateTime
+
 
 End Class
 
