@@ -11,6 +11,9 @@ Class MainWindow
     Public token As String
     Public kimPW As String = "6637AA99E18177E7663960496752E46A3CCE8012FB8E4D599DF0890EE3C1A299C768CE89FB2C300CB680A1B22FA98E0AB126049EE703AB92B0D8EBEBB99F3CFF"
     Public kimEmail As String = "kim.marsh@st-francis.org"
+    Public testEmail As String = "ekidztest@st-francis.org"
+    '7YqnrqsMNto7gQ
+    Public testPW As String = "EB9376AB5437E2E0469893C69BB32873AC5F20BDB60856CA8D299607626C34D28FC631EAE61FBABF38FFFAD16D331F84F1830A4A99B4B19F3B5AE6E09EA34678"
     Public apiFailuresCounter As Int32 = 0
 
     Function SearchClientByBrokerID(ByVal searchText As String) As SimpleList(Of Client)
@@ -131,6 +134,7 @@ Class MainWindow
         '/EkidzTrips?Token={token}&Device={device}&DateStart={dateStart}&DateEnd={dateEnd}&HideCancelled={hideCancelled}&hideNoShow={hideNoShow}&Programs={programs}//
         'Dim request As WebRequest = WebRequest.Create(api + $"TripService/Trips?Token={token}&Device=APIDEMO&Driver=31&Date=2016-08-15")
         Dim request As WebRequest = WebRequest.Create(api + $"TripService/EkidzTrips?Token={token}&Device=APIDEMO&DateStart=2016-08-15&DateEnd=2016-08-18&HideCancelled=0&HideNoShow=0&Programs=14&ClientType=All")
+
         request.ContentType = "application/json; charset=utf-8"
         listResults.Items.Add(request.RequestUri.ToString())
         Dim trips As List(Of TripWrapper) = New List(Of TripWrapper)
@@ -164,7 +168,9 @@ Class MainWindow
 
     Function GetToken() As String
         'https://aws.engraph.com/ParaPlanREST/UserService/Login?UserName=kim.marsh@st-francis.org&Password=6637AA99E18177E7663960496752E46A3CCE8012FB8E4D599DF0890EE3C1A299C768CE89FB2C300CB680A1B22FA98E0AB126049EE703AB92B0D8EBEBB99F3CFF&Device=APIDEMO&Version=0.1&DeviceToken=
-        Dim urlString = $"https://aws.engraph.com/ParaPlanREST/UserService/Login?UserName={kimEmail}&Password={kimPW}&Device=APIDEMO&Version=0.1&DeviceToken="
+        'Dim urlString = $"https://aws.engraph.com/ParaPlanREST/UserService/Login?UserName={kimEmail}&Password={kimPW}&Device=APIDEMO&Version=0.1&DeviceToken="
+        Dim urlString = $"https://aws.engraph.com/ParaPlanREST/UserService/Login?UserName={testEmail}&Password={testPW}&Device=APIDEMO&Version=0.1&DeviceToken="
+
         listResults.Items.Add(urlString)
         Dim request As WebRequest = WebRequest.Create(urlString)
         request.ContentType = "application/json; charset=utf-8"
@@ -268,7 +274,7 @@ Public Class Trip
 End Class
 
 Public Class TripClient
-    Public birthDate As Date
+    Public birthDate As Date?
     Public Contact As ContactInformation
 
 End Class
