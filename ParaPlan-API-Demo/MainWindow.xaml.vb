@@ -14,6 +14,9 @@ Class MainWindow
     Public testEmail As String = "ekidztest@st-francis.org"
     '7YqnrqsMNto7gQ
     Public testPW As String = "EB9376AB5437E2E0469893C69BB32873AC5F20BDB60856CA8D299607626C34D28FC631EAE61FBABF38FFFAD16D331F84F1830A4A99B4B19F3B5AE6E09EA34678"
+    Public apiEmail As String = "ekidz@st-francis.org"
+    'ba4tBz6tvWwxWa
+    Public apiPassword As String = "B84A1ECB990205E8396B458F6C5F6C82C12B2471CA71F794868E787E19000297AA448F74AA721BF7DED6F355644D112C254CFFF1C1675615617057822F9B4FEB"
     Public apiFailuresCounter As Int32 = 0
 
     Function SearchClientByBrokerID(ByVal searchText As String) As SimpleList(Of Client)
@@ -133,7 +136,7 @@ Class MainWindow
 
         '/EkidzTrips?Token={token}&Device={device}&DateStart={dateStart}&DateEnd={dateEnd}&HideCancelled={hideCancelled}&hideNoShow={hideNoShow}&Programs={programs}//
         'Dim request As WebRequest = WebRequest.Create(api + $"TripService/Trips?Token={token}&Device=APIDEMO&Driver=31&Date=2016-08-15")
-        Dim request As WebRequest = WebRequest.Create(api + $"TripService/EkidzTrips?Token={token}&Device=APIDEMO&DateStart=2016-08-15&DateEnd=2016-08-18&HideCancelled=0&HideNoShow=0&Programs=14&ClientType=All")
+        Dim request As WebRequest = WebRequest.Create(api + $"TripService/EkidzTrips?Token={token}&Device=APIDEMO&DateStart=2016-08-15&DateEnd=2016-08-15&HideCancelled=0&HideNoShow=0&Programs=14&ClientType=All")
 
         request.ContentType = "application/json; charset=utf-8"
         listResults.Items.Add(request.RequestUri.ToString())
