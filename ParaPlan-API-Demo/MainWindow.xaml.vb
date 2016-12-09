@@ -55,6 +55,26 @@ Class MainWindow
 
     End Function
 
+    Function PostProcessedTrips()
+        ValidateToken()
+
+        Dim request As WebRequest = WebRequest.Create(api + $"TripService/EkidzProcessed?Token={token}&Device=APIDEMO")
+        request.ContentType = "application/json; charset=utf-8"
+
+        listResults.Items.Add(request.RequestUri.ToString())
+
+        Dim trips = New List(Of ProcessedTrip)
+
+        Dim t1 = New ProcessedTrip
+        t1.tripID = "5339"
+        t1.epochStamp = GetEpochTime(DateTime.Now.AddDays(-3)).ToString()
+
+        Dim t2 = New ProcessedTrip
+        t2.tripID = "5340"
+        t2.epochStamp = GetEpochTime(DateTime.Now.AddDays(-3)).ToString()
+
+    End Function
+
     Function SearchClientByCustomID(ByVal searchText As String) As SimpleList(Of Client)
         ValidateToken()
 
@@ -136,7 +156,8 @@ Class MainWindow
 
         '/EkidzTrips?Token={token}&Device={device}&DateStart={dateStart}&DateEnd={dateEnd}&HideCancelled={hideCancelled}&hideNoShow={hideNoShow}&Programs={programs}//
         'Dim request As WebRequest = WebRequest.Create(api + $"TripService/Trips?Token={token}&Device=APIDEMO&Driver=31&Date=2016-08-15")
-        Dim request As WebRequest = WebRequest.Create(api + $"TripService/EkidzTrips?Token={token}&Device=APIDEMO&DateStart=2016-08-15&DateEnd=2016-08-15&HideCancelled=0&HideNoShow=0&Programs=14&ClientType=All")
+        'Dim request As WebRequest = WebRequest.Create(api + $"TripService/EkidzTrips?Token={token}&Device=APIDEMO&DateStart=2016-08-15&DateEnd=2016-08-15&HideCancelled=0&HideNoShow=0&Programs=14&ClientType=All")
+        Dim request As WebRequest = WebRequest.Create(api + $"TripService/EkidzTrips?Token={token}&Device=APIDEMO&DateStart=2016-08-15&DateEnd=2016-08-16&HideCancelled=0&HideNoShow=0&HideNonCompleted=0&Programs=14&ClientType=All")
 
         request.ContentType = "application/json; charset=utf-8"
         listResults.Items.Add(request.RequestUri.ToString())
@@ -223,6 +244,12 @@ Class MainWindow
     Private Sub GetByID_Click(sender As Object, e As RoutedEventArgs)
         GetClientByID(getByIDText.Text)
     End Sub
+
+    Function GetEpochTime(ByVal OriginalDate As DateTime) As Double
+        Return (OriginalDate.ToUniversalTime() - New DateTime(1970, 1, 1)).TotalSeconds
+    End Function
+
+
 End Class
 
 Public Class RESTBase
@@ -287,6 +314,12 @@ Public Class ContactInformation
     Public cellPhone As String
     Public homePhone As String
     Public otherPhone As String
+
+End Class
+
+Public Class ProcessedTrip
+    Public tripID As String
+    Public epochStamp As String
 
 End Class
 
