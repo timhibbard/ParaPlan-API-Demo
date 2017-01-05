@@ -21,6 +21,7 @@
                 <TextBox Name="getByIDText" Width="100"/>
                 <Button Content="Get By ID" Click="GetByID_Click"/>
             </DockPanel>
+            <Button Click="postClick" Content="Post Processed Trips"/>
         </StackPanel>
         <ListBox Name="listResults" MouseDoubleClick="listResults_MouseDoubleClick"/>
     </DockPanel>

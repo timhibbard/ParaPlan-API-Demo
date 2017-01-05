@@ -58,8 +58,11 @@ Class MainWindow
     Function PostProcessedTrips()
         ValidateToken()
 
-        Dim request As WebRequest = WebRequest.Create(api + $"TripService/EkidzProcessed?Token={token}&Device=APIDEMO")
+        Dim request As HttpWebRequest = WebRequest.Create(api + $"TripService/EkidzProcessed?Token={token}&Device=APIDEMO")
         request.ContentType = "application/json; charset=utf-8"
+        request.Method = "POST"
+        request.KeepAlive = True
+        request.Accept = "application/json"
 
         listResults.Items.Add(request.RequestUri.ToString())
 
@@ -71,7 +74,30 @@ Class MainWindow
 
         Dim t2 = New ProcessedTrip
         t2.tripID = "5340"
-        t2.epochStamp = GetEpochTime(DateTime.Now.AddDays(-3)).ToString()
+        t2.epochStamp = GetEpochTime(DateTime.Now.AddDays(-2)).ToString()
+
+        trips.Add(t1)
+        trips.Add(t2)
+
+        Dim postJSON = JsonConvert.SerializeObject(trips)
+
+
+        Using streamWriter As StreamWriter = New StreamWriter(request.GetRequestStream())
+            streamWriter.Write(postJSON)
+
+        End Using
+
+        Using response As HttpWebResponse = request.GetResponse()
+            Dim reader As StreamReader = New StreamReader(response.GetResponseStream)
+            Dim s As String = reader.ReadToEnd()
+            listResults.Items.Add(s)
+            listResults.Items.Add("Post complete")
+        End Using
+
+
+
+
+
 
     End Function
 
@@ -249,7 +275,9 @@ Class MainWindow
         Return (OriginalDate.ToUniversalTime() - New DateTime(1970, 1, 1)).TotalSeconds
     End Function
 
-
+    Private Sub postClick(sender As Object, e As RoutedEventArgs)
+        PostProcessedTrips()
+    End Sub
 End Class
 
 Public Class RESTBase
