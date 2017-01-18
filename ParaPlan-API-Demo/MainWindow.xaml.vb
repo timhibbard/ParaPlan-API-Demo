@@ -41,7 +41,7 @@ Class MainWindow
                     Return SearchClientByBrokerID(searchText)
                 End If
                 For Each c In clients.list
-                    listResults.Items.Add($"{c.id} {c.name} {c.notes}")
+                    listResults.Items.Add($"{c.id} {c.name} {c.notes} {DateTime.Parse(c.birthDateJson).ToLongDateString()}")
 
                 Next
 
@@ -69,7 +69,7 @@ Class MainWindow
         Dim trips = New List(Of ProcessedTrip)
 
         Dim t1 = New ProcessedTrip
-        t1.tripID = "5339"
+        t1.tripID = "11240"
         t1.epochStamp = GetEpochTime(DateTime.Now.AddDays(-3)).ToString()
 
         Dim t2 = New ProcessedTrip
@@ -183,7 +183,7 @@ Class MainWindow
         '/EkidzTrips?Token={token}&Device={device}&DateStart={dateStart}&DateEnd={dateEnd}&HideCancelled={hideCancelled}&hideNoShow={hideNoShow}&Programs={programs}//
         'Dim request As WebRequest = WebRequest.Create(api + $"TripService/Trips?Token={token}&Device=APIDEMO&Driver=31&Date=2016-08-15")
         'Dim request As WebRequest = WebRequest.Create(api + $"TripService/EkidzTrips?Token={token}&Device=APIDEMO&DateStart=2016-08-15&DateEnd=2016-08-15&HideCancelled=0&HideNoShow=0&Programs=14&ClientType=All")
-        Dim request As WebRequest = WebRequest.Create(api + $"TripService/EkidzTrips?Token={token}&Device=APIDEMO&DateStart=2016-08-15&DateEnd=2016-08-16&HideCancelled=0&HideNoShow=0&HideNonCompleted=0&Programs=14&ClientType=All")
+        Dim request As WebRequest = WebRequest.Create(api + $"TripService/EkidzTrips?Token={token}&Device=APIDEMO&DateStart=2016-07-01&DateEnd=2016-07-03&HideCancelled=0&HideNoShow=0&HideNonCompleted=0&Programs=14&ClientType=All&HideProcessed=no")
 
         request.ContentType = "application/json; charset=utf-8"
         listResults.Items.Add(request.RequestUri.ToString())
@@ -193,7 +193,9 @@ Class MainWindow
                 Dim reader As StreamReader = New StreamReader(response.GetResponseStream)
                 Dim s As String = reader.ReadToEnd()
                 listResults.Items.Add(s)
-                trips = JsonConvert.DeserializeObject(Of List(Of TripWrapper))(s)
+                Dim jsonSettings = New JsonSerializerSettings()
+                jsonSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc
+                trips = JsonConvert.DeserializeObject(Of List(Of TripWrapper))(s, jsonSettings)
                 If trips.First.tokenExists = False Or trips.First.tokenIsValid = False Then
                     apiFailuresCounter = apiFailuresCounter + 1
                     If apiFailuresCounter > 5 Then
@@ -202,8 +204,9 @@ Class MainWindow
                     token = GetToken()
                     Return GetTrips()
                 End If
+                listResults.Items.Add($"{trips.Count} trips")
                 For Each t In trips
-                    listResults.Items.Add($"{t.Trip.Client.Contact.bestPhoneNumber} - {t.Trip.tripDate}")
+                    listResults.Items.Add($"{t.Trip.Client.Contact.bestPhoneNumber} - {t.Trip.tripDateJson} - {DateTime.Parse(t.Trip.tripDateJson).ToString()} - {t.Trip.tripId}")
                 Next
 
 
@@ -300,6 +303,7 @@ Public Class Client
     Public id As Int32
     Public name As String
     Public notes As String
+    Public birthDateJson As String
 
 End Class
 
@@ -326,13 +330,14 @@ Public Class Trip
     Public appointmentType As String
     Public Client As TripClient
     Public tripId As String
-    Public tripDate As DateTime
+    'Public tripDate As DateTime
+    Public tripDateJson As String
 
 
 End Class
 
 Public Class TripClient
-    Public birthDate As Date?
+    Public birthDateJson As String
     Public Contact As ContactInformation
 
 End Class
